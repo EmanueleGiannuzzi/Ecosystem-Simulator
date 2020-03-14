@@ -9,16 +9,17 @@ public class TerrainGenerator : MonoBehaviour
     public bool autoUpdate;
 
     public Vector2Int mapSize;
-    public float noiseScale;
 
+    [Header("Perlin Noise Settings")]
+    public float noiseScale;
+    public Vector2 offset;
+    public int seed;
     public int octaves;
     [Range(0,1)]
     public float persistance;
     public float lacunarity;
 
-    public int seed;
-    public Vector2 offset;
-
+    [Header("Biomes Settings")]
     public BiomeType[] biomes;
 
     float[,] noiseMap;

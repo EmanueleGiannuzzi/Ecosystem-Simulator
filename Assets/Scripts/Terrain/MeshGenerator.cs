@@ -13,14 +13,19 @@ public static class MeshGenerator
 		MeshData meshData = new MeshData(width, height);
 		int vertexIndex = 0;
 
-		for (int y = 0; y < height; y++)
+		for (int z = 0; z < height; z++)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				meshData.vertices[vertexIndex] = new Vector3(topLeftX + x, 0, topLeftZ - y);
-				meshData.uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
+				float y = 0;
+				if(heightMap[x,z] <= 0.4)//TODO
+				{
+					y = -0.5f;
+				}
+				meshData.vertices[vertexIndex] = new Vector3(topLeftX + x, y, topLeftZ - z);
+				meshData.uvs[vertexIndex] = new Vector2(x / (float)width, z / (float)height);
 
-				if (x < width - 1 && y < height - 1)
+				if (x < width - 1 && z < height - 1)
 				{
 					meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
 					meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
