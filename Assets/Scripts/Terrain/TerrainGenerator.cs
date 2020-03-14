@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapGenerator : MonoBehaviour
+public class TerrainGenerator : MonoBehaviour
 {
     public Transform tilePrefab;
+
+    public bool autoUpdate;
+
     public Vector2Int mapSize;
     public float noiseScale;
 
@@ -16,7 +19,8 @@ public class MapGenerator : MonoBehaviour
     public int seed;
     public Vector2 offset;
 
-    public TerrainType[] regions;
+    public BiomeHandler.BiomeType[] biomes;
+
 
     void Start()
     {
@@ -35,29 +39,35 @@ public class MapGenerator : MonoBehaviour
         mapHolder.parent = transform;
 
         float[,] noiseMap = Noise.GenerateNoiseMap(mapSize.x, mapSize.y, seed, noiseScale, octaves, persistance, lacunarity, offset);
-
+        
         for(int x = 0; x < mapSize.x; x++)
         {
             for (int y = 0; y < mapSize.y; y++)
             {
                 Vector3 tilePos = new Vector3(-mapSize.x/2 + 0.5f + x, 0, -mapSize.y/2 + 0.5f + y);
-                Transform newTile = Instantiate(tilePrefab, tilePos, Quaternion.Euler(Vector3.right * 90)) as Transform;
+                Transform newTile = (Transform)Instantiate(tilePrefab, tilePos, Quaternion.Euler(Vector3.right * 90));
                 newTile.parent = mapHolder;
 
-                float currentHeight = noiseMap[x, y];
+                BiomeHandler.BiomeType biome = BiomeHandler.getBiomeFromHeight(biomes, noiseMap[x, y]);
+                Renderer tileRenderer = newTile.GetComponent<Renderer>();
+                Material tileMaterial = new Material(tileRenderer.sharedMaterial);
+                tileMaterial.color = biome.color;
+                tileRenderer.sharedMaterial = tileMaterial;
 
-                for (int i = 0; i < regions.Length; i++)
+                /*float currentHeight = noiseMap[x, y];
+
+                for (int i = 0; i < biomes.Length; i++)
                 {
-                    TerrainType region = regions[i];
-                    if (currentHeight <= region.height)
+                    BiomeHandler.BiomeType biome = biomes[i];
+                    if (currentHeight <= biome.height)
                     {
                         Renderer tileRenderer = newTile.GetComponent<Renderer>();
                         Material tileMaterial = new Material(tileRenderer.sharedMaterial);
-                        tileMaterial.color = region.color;
+                        tileMaterial.color = biome.color;
                         tileRenderer.sharedMaterial = tileMaterial;
                         break;
                     }
-                }
+                }*/
             }
         }
     }
@@ -83,11 +93,5 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    [System.Serializable]
-    public struct TerrainType
-    {
-        public string name;
-        public float height;
-        public Color color;
-    }
+    
 }
