@@ -14,7 +14,7 @@ public class BiomeHandler
         public Color color;
         public bool isWalkable;
 
-        public BiomeType(string name, int height, Color color, bool isWalkable) : this()
+        public BiomeType(string name, float height, Color color, bool isWalkable) : this()
         {
             this.name = name;
             this.height = height;

@@ -21,6 +21,10 @@ public class TerrainGeneratorEditor : Editor
         {
             terrainGen.GenerateMap();
         }
+        if(GUILayout.Button("Reset Biomes"))
+        {
+            terrainGen.resetBiomes();
+        }
     }
 
     void OnEnable()

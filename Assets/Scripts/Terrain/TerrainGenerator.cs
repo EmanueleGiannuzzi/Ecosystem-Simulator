@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using static BiomeHandler;
+
 public class TerrainGenerator : MonoBehaviour
 {
-    public Transform tilePrefab;
-
     public bool autoUpdate;
 
     public Vector2Int mapSize;
@@ -19,7 +19,9 @@ public class TerrainGenerator : MonoBehaviour
     public int seed;
     public Vector2 offset;
 
-    public BiomeHandler.BiomeType[] biomes;
+    public BiomeType[] biomes;
+
+    float[,] noiseMap;
 
 
     void Start()
@@ -38,40 +40,11 @@ public class TerrainGenerator : MonoBehaviour
         Transform mapHolder = new GameObject(holderName).transform;
         mapHolder.parent = transform;
 
-        float[,] noiseMap = Noise.GenerateNoiseMap(mapSize.x, mapSize.y, seed, noiseScale, octaves, persistance, lacunarity, offset);
+        noiseMap = Noise.GenerateNoiseMap(mapSize.x, mapSize.y, seed, noiseScale, octaves, persistance, lacunarity, offset);
         
-        for(int x = 0; x < mapSize.x; x++)
-        {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                Vector3 tilePos = new Vector3(-mapSize.x/2 + 0.5f + x, 0, -mapSize.y/2 + 0.5f + y);
-                Transform newTile = (Transform)Instantiate(tilePrefab, tilePos, Quaternion.Euler(Vector3.right * 90));
-                newTile.parent = mapHolder;
-
-                BiomeHandler.BiomeType biome = BiomeHandler.getBiomeFromHeight(biomes, noiseMap[x, y]);
-                Renderer tileRenderer = newTile.GetComponent<Renderer>();
-                Material tileMaterial = new Material(tileRenderer.sharedMaterial);
-                tileMaterial.color = biome.color;
-                tileRenderer.sharedMaterial = tileMaterial;
-
-                /*float currentHeight = noiseMap[x, y];
-
-                for (int i = 0; i < biomes.Length; i++)
-                {
-                    BiomeHandler.BiomeType biome = biomes[i];
-                    if (currentHeight <= biome.height)
-                    {
-                        Renderer tileRenderer = newTile.GetComponent<Renderer>();
-                        Material tileMaterial = new Material(tileRenderer.sharedMaterial);
-                        tileMaterial.color = biome.color;
-                        tileRenderer.sharedMaterial = tileMaterial;
-                        break;
-                    }
-                }*/
-            }
-        }
+        TerrainRenderer terrainRenderer = FindObjectOfType<TerrainRenderer>();
+        terrainRenderer.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap), TextureGenerator.TextureFromHeightMap(noiseMap, biomes));
     }
-
 
     private void OnValidate()
     {
@@ -93,5 +66,19 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    
+    public void resetBiomes()
+    {
+        BiomeType water = new BiomeType("Water", 0.4f, new Color(0.1098039f, 0.6392157f, 0.9254902f), false);
+        BiomeType shore = new BiomeType("Shore", 0.5f, new Color(0.9490196f, 0.8196079f, 0.4196078f), true);
+        BiomeType grass = new BiomeType("Grass", 0.8f, new Color(0.1852135f, 0.7169812f, 0.1589534f), true);
+        BiomeType hill = new BiomeType("Hill", 1.0f, new Color(0.05882353f, 0.4235294f, 0.01176471f), true);
+
+        biomes = new BiomeType[] { water, shore, grass, hill };
+    }
+
+    public BiomeType getBiomeFromPos(Vector3 pos)
+    {
+        float heightValue = noiseMap[(int)pos.x, (int)pos.z];//TODO: Check z or y
+        return BiomeHandler.getBiomeFromHeight(biomes, heightValue);
+    }
 }
