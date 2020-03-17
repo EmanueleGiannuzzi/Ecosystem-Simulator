@@ -23,7 +23,7 @@ public class TerrainGeneratorEditor : Editor
         }
         if(GUILayout.Button("Reset Biomes"))
         {
-            terrainGen.resetBiomes();
+            terrainGen.ResetBiomes();
         }
     }
 

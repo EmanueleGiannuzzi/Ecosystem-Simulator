@@ -67,7 +67,7 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    public void resetBiomes()
+    public void ResetBiomes()
     {
         BiomeType water = new BiomeType("Water", 0.4f, new Color(0.1098039f, 0.6392157f, 0.9254902f), false);
         BiomeType shore = new BiomeType("Shore", 0.5f, new Color(0.9490196f, 0.8196079f, 0.4196078f), true);
@@ -77,9 +77,9 @@ public class TerrainGenerator : MonoBehaviour
         biomes = new BiomeType[] { water, shore, grass, hill };
     }
 
-    public BiomeType getBiomeFromPos(Vector3 pos)
+    public BiomeType GetBiomeFromPos(int x, int y)
     {
-        float heightValue = noiseMap[(int)pos.x, (int)pos.z];//TODO: Check z or y
+        float heightValue = noiseMap[x, y];
         return BiomeHandler.getBiomeFromHeight(biomes, heightValue);
     }
 }
